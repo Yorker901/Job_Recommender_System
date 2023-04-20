@@ -37,7 +37,7 @@ def get_recommendations(title):
     #return titles.iloc[job_indices]
     return df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']].iloc[job_indices]
 
-st.title('Jobs Recommender System')
+st.title('Linkedin Jobs Recommender System')
 
 option = st.selectbox('Select your Job: ', df['Job Title Cleaned'].values)
 
