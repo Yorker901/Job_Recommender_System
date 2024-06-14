@@ -14,7 +14,7 @@ except EOFError:
     st.stop()
 
 # Set page configuration
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="LinkedIn Jobs Recommender", layout="wide")
 
 # Function to get job recommendations
 def get_recommendations(title):
@@ -23,18 +23,15 @@ def get_recommendations(title):
         idx = indices[title]
         sim_scores = list(enumerate(similarity[idx]))
         sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        sim_scores = sim_scores[1:6]
+        sim_scores = sim_scores[1:6]  # Top 5 recommendations
         job_indices = [i[0] for i in sim_scores]
-        return df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']].iloc[job_indices]
+        return df.iloc[job_indices]
     except KeyError:
         return None
 
 # Main function to display UI
 def main():
     st.title('LinkedIn Jobs Recommender System')
-
-    # Display welcome message
-    st.write("Welcome to LinkedIn Jobs Recommender System")
 
     # Sidebar with job selection
     st.sidebar.subheader('Select a Job Title:')
@@ -46,14 +43,10 @@ def main():
         if recommendation is not None and not recommendation.empty:
             st.header('Recommended Jobs:')
             for i, row in recommendation.iterrows():
-                st.subheader('Job Title:')
-                st.write(row['Job Title Cleaned'])
-                st.subheader('Company:')
-                st.write(row['Company'])
-                st.subheader('Industry:')
-                st.write(row['Industry'])
-                st.subheader('Type of Role:')
-                st.write(row['Type of role cleaned'])
+                st.write(f"**Job Title:** {row['Job Title Cleaned']}")
+                st.write(f"**Company:** {row['Company']}")
+                st.write(f"**Industry:** {row['Industry']}")
+                st.write(f"**Type of Role:** {row['Type of role cleaned']}")
                 st.markdown("---")
         else:
             st.warning(f"No recommendations found for '{option}'. Please select another job title.")
