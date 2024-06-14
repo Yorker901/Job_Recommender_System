@@ -85,7 +85,6 @@
 import pickle
 import pandas as pd
 import streamlit as st
-import plotly.express as px
 
 # Function to load data and models with error handling
 def load_data():
@@ -162,16 +161,6 @@ def main():
     # Display filtered data table
     st.subheader('Filtered Job Data:')
     st.dataframe(filtered_df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']])
-
-    # Interactive salary comparison chart
-    st.subheader('Salary Comparison:')
-    selected_jobs = st.multiselect('Select Jobs for Salary Comparison:', filtered_df['Job Title Cleaned'].unique())
-    if selected_jobs:
-        fig = px.bar(filtered_df[filtered_df['Job Title Cleaned'].isin(selected_jobs)], x='Job Title Cleaned', y='Salary', color='Industry',
-                     title='Salary Comparison Across Selected Jobs')
-        st.plotly_chart(fig)
-    else:
-        st.info("Select one or more jobs above to compare salaries.")
 
     # User feedback section
     st.subheader('User Feedback:')
