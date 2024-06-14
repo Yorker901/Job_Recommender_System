@@ -82,7 +82,6 @@
 # if __name__ == '__main__':
 #     main()
 
-
 import pickle
 import pandas as pd
 import streamlit as st
