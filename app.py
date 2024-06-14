@@ -181,19 +181,25 @@ def main():
             else:
                 st.warning("Please select a job title.")
 
-        # Display filtered job data
-        st.subheader('Filtered Job Data:')
-        st.dataframe(filtered_df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']])
-
-        # User feedback section
-        st.subheader('User Feedback:')
-        user_feedback = st.text_area('Share your feedback or comments here:', height=150)
-        if st.button('Submit Feedback'):
-            # Implement logic to store or process user feedback (e.g., save to database)
-            st.success('Feedback submitted successfully! Thank you.')
+        # About section
+        st.sidebar.subheader('About')
+        st.sidebar.info(
+            "This application provides job recommendations based on a cosine similarity model. "
+            "It helps users find relevant job opportunities based on selected filters and job titles."
+        )
 
     else:
         st.info('Please login to access the LinkedIn Jobs Recommender System.')
+
+    # Additional pages and sections
+    if st.session_state.get('logged_in'):
+        # Add more sections/pages here as needed
+
+        # Page for 'Filtered Job Data'
+        st.sidebar.subheader('View Data')
+        if st.sidebar.button('Filtered Job Data'):
+            st.title('Filtered Job Data')
+            st.dataframe(filtered_df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']])
 
 # Execute main function
 if __name__ == '__main__':
