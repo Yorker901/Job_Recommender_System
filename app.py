@@ -2,36 +2,43 @@ import pickle
 import pandas as pd
 import streamlit as st
 
-# Load data and models with error handling
-try:
-    df = pickle.load(open('Model_test_2.pkl', 'rb'))
-    similarity = pickle.load(open('cosine1_sim.pkl', 'rb'))
-except FileNotFoundError:
-    st.error("Pickle file not found. Please ensure the files 'Model_test_2.pkl' and 'cosine1_sim.pkl' are in the correct directory.")
-    st.stop()
-except EOFError:
-    st.error("Error loading pickled data. Please verify the integrity of the files 'Model_test_2.pkl' and 'cosine1_sim.pkl'.")
-    st.stop()
-
-# Set page configuration
-st.set_page_config(page_title="LinkedIn Jobs Recommender", layout="wide")
-
-# Function to get job recommendations
-def get_recommendations(title):
+# Function to load data and models with error handling
+def load_data():
     try:
-        indices = pd.Series(df.index, index=df['Job Title Cleaned'])
-        idx = indices[title]
-        sim_scores = list(enumerate(similarity[idx]))
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        sim_scores = sim_scores[1:6]  # Top 5 recommendations
-        job_indices = [i[0] for i in sim_scores]
-        return df.iloc[job_indices]
-    except KeyError:
-        return None
+        df = pickle.load(open('Model_test_2.pkl', 'rb'))
+        similarity = pickle.load(open('cosine1_sim.pkl', 'rb'))
+        return df, similarity
+    except FileNotFoundError as e:
+        st.error(f"Pickle file not found: {e.filename}. Please ensure the necessary files are in the correct directory.")
+        st.stop()
+    except (EOFError, pickle.UnpicklingError) as e:
+        st.error(f"Error loading pickled data: {str(e)}")
+        st.stop()
 
 # Main function to display UI
 def main():
+    # Load data and models
+    df, similarity = load_data()
+
+    # Set page configuration
+    st.set_page_config(page_title="LinkedIn Jobs Recommender", layout="wide")
+
+    # Function to get job recommendations
+    def get_recommendations(title):
+        try:
+            indices = pd.Series(df.index, index=df['Job Title Cleaned'])
+            idx = indices[title]
+            sim_scores = list(enumerate(similarity[idx]))
+            sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+            sim_scores = sim_scores[1:6]  # Top 5 recommendations
+            job_indices = [i[0] for i in sim_scores]
+            return df.iloc[job_indices]
+        except KeyError:
+            return None
+
+    # Display UI elements
     st.title('LinkedIn Jobs Recommender System')
+    st.write("Welcome to LinkedIn Jobs Recommender System")
 
     # Sidebar with job selection
     st.sidebar.subheader('Select a Job Title:')
