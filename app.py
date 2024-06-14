@@ -41,31 +41,42 @@
 #     st.write("Welcome to LinkedIn Jobs Recommender System")
 
 #     # Search box for job titles
-#     search_title = st.text_input("Search for a Job Title:")
+#     st.sidebar.subheader('Search for a Job Title:')
+#     search_title = st.sidebar.text_input("", "").strip()
 #     options = df['Job Title Cleaned'].values
 #     filtered_options = [option for option in options if search_title.lower() in option.lower()]
-#     option = st.selectbox('Select a Job Title:', options=filtered_options)
+#     option = st.sidebar.selectbox('Select a Job Title:', options=filtered_options)
 
 #     # Multi-select for industries
 #     industries = df['Industry'].unique()
-#     selected_industries = st.multiselect('Select Industries:', industries)
+#     selected_industries = st.sidebar.multiselect('Filter by Industries:', industries)
+
+#     # Display selected filters
+#     if selected_industries:
+#         filtered_df = df[df['Industry'].isin(selected_industries)]
+#     else:
+#         filtered_df = df
 
 #     # Button to trigger recommendation
-#     if st.button('Get Recommendations'):
+#     if st.sidebar.button('Get Recommendations'):
 #         if option:
 #             recommendation = get_recommendations(option)
 #             if recommendation is not None and not recommendation.empty:
 #                 st.header('Recommended Jobs:')
 #                 for i, row in recommendation.iterrows():
-#                     st.write(f"**Job Title:** {row['Job Title Cleaned']}")
+#                     st.subheader(row['Job Title Cleaned'])
 #                     st.write(f"**Company:** {row['Company']}")
 #                     st.write(f"**Industry:** {row['Industry']}")
 #                     st.write(f"**Type of Role:** {row['Type of role cleaned']}")
 #                     st.markdown("---")
 #             else:
-#                 st.warning(f"No recommendations found for '{option}'. Please select another job title.")
+#                 st.warning(f"No recommendations found for '{option}'. Please select another job title or adjust filters.")
 #         else:
 #             st.warning("Please select a job title.")
+
+#     # Display filtered data table
+#     st.subheader('Filtered Job Data:')
+#     st.dataframe(filtered_df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']])
 
 # # Execute main function
 # if __name__ == '__main__':
@@ -75,6 +86,7 @@
 import pickle
 import pandas as pd
 import streamlit as st
+import plotly.express as px
 
 # Function to load data and models with error handling
 def load_data():
@@ -114,9 +126,9 @@ def main():
     st.title('LinkedIn Jobs Recommender System')
     st.write("Welcome to LinkedIn Jobs Recommender System")
 
-    # Search box for job titles
-    st.sidebar.subheader('Search for a Job Title:')
-    search_title = st.sidebar.text_input("", "").strip()
+    # Sidebar for filters and search
+    st.sidebar.subheader('Search and Filters:')
+    search_title = st.sidebar.text_input("Search for a Job Title:")
     options = df['Job Title Cleaned'].values
     filtered_options = [option for option in options if search_title.lower() in option.lower()]
     option = st.sidebar.selectbox('Select a Job Title:', options=filtered_options)
@@ -152,8 +164,24 @@ def main():
     st.subheader('Filtered Job Data:')
     st.dataframe(filtered_df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']])
 
+    # Interactive salary comparison chart
+    st.subheader('Salary Comparison:')
+    selected_jobs = st.multiselect('Select Jobs for Salary Comparison:', filtered_df['Job Title Cleaned'].unique())
+    if selected_jobs:
+        fig = px.bar(filtered_df[filtered_df['Job Title Cleaned'].isin(selected_jobs)], x='Job Title Cleaned', y='Salary', color='Industry',
+                     title='Salary Comparison Across Selected Jobs')
+        st.plotly_chart(fig)
+    else:
+        st.info("Select one or more jobs above to compare salaries.")
+
+    # User feedback section
+    st.subheader('User Feedback:')
+    user_feedback = st.text_area('Share your feedback or comments here:', height=150)
+    if st.button('Submit Feedback'):
+        # Implement logic to store or process user feedback (e.g., save to database)
+        st.success('Feedback submitted successfully! Thank you.')
+
 # Execute main function
 if __name__ == '__main__':
     main()
-
 
