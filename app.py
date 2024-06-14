@@ -134,6 +134,17 @@ def main():
         st.title('LinkedIn Jobs Recommender System')
         st.write("Welcome to LinkedIn Jobs Recommender System")
 
+        # Project Overview
+        st.header('Project Overview')
+        st.markdown("""
+        This application uses a cosine similarity model to recommend job opportunities based on a selected job title. 
+        Users can filter jobs by industry and view relevant job listings.
+        """)
+
+        # Navigation Bar
+        st.sidebar.title('Navigation')
+        page = st.sidebar.radio('Go to', ['Home', 'About'])
+
         # Function to get job recommendations
         def get_recommendations(title):
             try:
@@ -182,18 +193,15 @@ def main():
                 st.warning("Please select a job title.")
 
         # About section
-        st.sidebar.subheader('Navigation')
-        page = st.sidebar.radio('Go to', ['Home', 'About'])
-
-        if page == 'Home':
-            st.write("This is the main page content.")
-            # Add more content as needed
-        elif page == 'About':
-            st.title('About')
-            st.write(
-                "This application provides job recommendations based on a cosine similarity model. "
-                "It helps users find relevant job opportunities based on selected filters and job titles."
-            )
+        st.sidebar.subheader('About')
+        st.sidebar.info(
+            "This application provides job recommendations based on a cosine similarity model. "
+            "It helps users find relevant job opportunities based on selected filters and job titles."
+        )
+        
+        # GitHub link
+        st.sidebar.subheader('GitHub')
+        st.sidebar.markdown("[Project Repository](www.linkedin.com/in/arizkhan)")
 
 # Execute main function
 if __name__ == '__main__':
