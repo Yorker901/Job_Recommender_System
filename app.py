@@ -183,18 +183,24 @@ def main():
                 st.warning("Please select a job title.")
 
         # About section
-        st.sidebar.subheader('Navigation')
-        page = st.sidebar.radio('Go to', ['Home', 'About'])
+        st.sidebar.subheader('About')
+        st.sidebar.info(
+            "This application provides job recommendations based on a cosine similarity model. "
+            "It helps users find relevant job opportunities based on selected filters and job titles."
+        )
 
-        if page == 'Home':
-            st.write("This is the main page content.")
-            # Add more content as needed
-        elif page == 'About':
-            st.title('About')
-            st.write(
-                "This application provides job recommendations based on a cosine similarity model. "
-                "It helps users find relevant job opportunities based on selected filters and job titles."
-            )
+    else:
+        st.info('Please login to access the LinkedIn Jobs Recommender System.')
+
+    # Additional pages and sections
+    if st.session_state.get('logged_in'):
+        # Add more sections/pages here as needed
+
+        # Page for 'Filtered Job Data'
+        st.sidebar.subheader('View Data')
+        if st.sidebar.button('Filtered Job Data'):
+            st.title('Filtered Job Data')
+            st.dataframe(filtered_df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']])
 
 # Execute main function
 if __name__ == '__main__':
