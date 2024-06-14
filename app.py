@@ -13,7 +13,7 @@ df = pickle.load(open('Model_test_2.pkl', 'rb'))
 similarity = pickle.load(open('cosine1_sim.pkl', 'rb'))
 
 # Set page configuration
-st.set_page_config(layout="centered")
+st.set_page_config(layout="wide")
 
 # Welcome function
 def welcome():
@@ -30,7 +30,7 @@ def get_recommendations(title):
         job_indices = [i[0] for i in sim_scores]
         return df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']].iloc[job_indices]
     except KeyError:
-        st.error(f"Job title '{title}' not found. Please select a valid job title.")
+        return None
 
 # Main function to display UI
 def main():
@@ -39,20 +39,27 @@ def main():
     # Display welcome message
     st.write(welcome())
 
-    # Dropdown to select job title
-    option = st.selectbox('Select a Job Title:', df['Job Title Cleaned'].values)
+    # Sidebar with job selection
+    st.sidebar.subheader('Select a Job Title:')
+    option = st.sidebar.selectbox('', df['Job Title Cleaned'].values)
 
     # Button to trigger recommendation
-    if st.button('Get Recommendations'):
+    if st.sidebar.button('Get Recommendations'):
         recommendation = get_recommendations(option)
-        if recommendation is not None:
-            st.subheader('Recommended Jobs:')
+        if recommendation is not None and not recommendation.empty:
+            st.header('Recommended Jobs:')
             for i, row in recommendation.iterrows():
-                st.write('Job Title:', row['Job Title Cleaned'])
-                st.write('Company:', row['Company'])
-                st.write('Industry:', row['Industry'])
-                st.write('Type of role:', row['Type of role cleaned'])
-                st.write("=============================================")
+                st.subheader('Job Title:')
+                st.write(row['Job Title Cleaned'])
+                st.subheader('Company:')
+                st.write(row['Company'])
+                st.subheader('Industry:')
+                st.write(row['Industry'])
+                st.subheader('Type of Role:')
+                st.write(row['Type of role cleaned'])
+                st.markdown("---")
+        else:
+            st.warning(f"No recommendations found for '{option}'. Please select another job title.")
 
 # Execute main function
 if __name__ == '__main__':
