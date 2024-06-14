@@ -1,23 +1,20 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Apr 16 12:14:26 2023
-@author: admin
-"""
-
 import pickle
 import pandas as pd
 import streamlit as st
 
-# Load data and models
-df = pickle.load(open('Model_test_2.pkl', 'rb'))
-similarity = pickle.load(open('cosine1_sim.pkl', 'rb'))
+# Load data and models with error handling
+try:
+    df = pickle.load(open('Model_test_2.pkl', 'rb'))
+    similarity = pickle.load(open('cosine1_sim.pkl', 'rb'))
+except FileNotFoundError:
+    st.error("Pickle file not found. Please ensure the files 'Model_test_2.pkl' and 'cosine1_sim.pkl' are in the correct directory.")
+    st.stop()
+except EOFError:
+    st.error("Error loading pickled data. Please verify the integrity of the files 'Model_test_2.pkl' and 'cosine1_sim.pkl'.")
+    st.stop()
 
 # Set page configuration
 st.set_page_config(layout="wide")
-
-# Welcome function
-def welcome():
-    return "Welcome to LinkedIn Jobs Recommender System"
 
 # Function to get job recommendations
 def get_recommendations(title):
@@ -37,7 +34,7 @@ def main():
     st.title('LinkedIn Jobs Recommender System')
 
     # Display welcome message
-    st.write(welcome())
+    st.write("Welcome to LinkedIn Jobs Recommender System")
 
     # Sidebar with job selection
     st.sidebar.subheader('Select a Job Title:')
