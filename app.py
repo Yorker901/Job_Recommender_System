@@ -40,23 +40,32 @@ def main():
     st.title('LinkedIn Jobs Recommender System')
     st.write("Welcome to LinkedIn Jobs Recommender System")
 
-    # Sidebar with job selection
-    st.sidebar.subheader('Select a Job Title:')
-    option = st.sidebar.selectbox('', df['Job Title Cleaned'].values)
+    # Search box for job titles
+    search_title = st.text_input("Search for a Job Title:")
+    options = df['Job Title Cleaned'].values
+    filtered_options = [option for option in options if search_title.lower() in option.lower()]
+    option = st.selectbox('Select a Job Title:', options=filtered_options)
+
+    # Multi-select for industries
+    industries = df['Industry'].unique()
+    selected_industries = st.multiselect('Select Industries:', industries)
 
     # Button to trigger recommendation
-    if st.sidebar.button('Get Recommendations'):
-        recommendation = get_recommendations(option)
-        if recommendation is not None and not recommendation.empty:
-            st.header('Recommended Jobs:')
-            for i, row in recommendation.iterrows():
-                st.write(f"**Job Title:** {row['Job Title Cleaned']}")
-                st.write(f"**Company:** {row['Company']}")
-                st.write(f"**Industry:** {row['Industry']}")
-                st.write(f"**Type of Role:** {row['Type of role cleaned']}")
-                st.markdown("---")
+    if st.button('Get Recommendations'):
+        if option:
+            recommendation = get_recommendations(option)
+            if recommendation is not None and not recommendation.empty:
+                st.header('Recommended Jobs:')
+                for i, row in recommendation.iterrows():
+                    st.write(f"**Job Title:** {row['Job Title Cleaned']}")
+                    st.write(f"**Company:** {row['Company']}")
+                    st.write(f"**Industry:** {row['Industry']}")
+                    st.write(f"**Type of Role:** {row['Type of role cleaned']}")
+                    st.markdown("---")
+            else:
+                st.warning(f"No recommendations found for '{option}'. Please select another job title.")
         else:
-            st.warning(f"No recommendations found for '{option}'. Please select another job title.")
+            st.warning("Please select a job title.")
 
 # Execute main function
 if __name__ == '__main__':
