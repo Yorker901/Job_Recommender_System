@@ -185,9 +185,10 @@ def main():
 
     # Sidebar for login
     st.sidebar.title('Navigation')
-    page = st.sidebar.selectbox('Go to', ['Home', 'View Data', 'About', 'More'])
+    page = st.sidebar.radio('Go to', ['Home', 'View Data', 'About'])
 
     if page == 'Home':
+        # Display main content
         st.title('LinkedIn Jobs Recommender System')
         st.write("Welcome to LinkedIn Jobs Recommender System")
 
@@ -239,20 +240,17 @@ def main():
                 st.warning("Please select a job title.")
 
     elif page == 'View Data':
+        # Display filtered job data
         st.title('Filtered Job Data')
-        st.sidebar.subheader('View Data')
         st.dataframe(filtered_df[['Job Title Cleaned', 'Company', 'Industry', 'Type of role cleaned']])
 
     elif page == 'About':
+        # Display information about the app
         st.title('About')
         st.write("""
         This application provides job recommendations based on a cosine similarity model. 
         Users can filter jobs by industry to find relevant job opportunities.
         """)
-
-    elif page == 'More':
-        st.title('More Options')
-        st.write("Additional sections or options can be added here.")
 
 # Execute main function
 if __name__ == '__main__':
