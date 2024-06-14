@@ -100,13 +100,6 @@ def load_data():
         st.error(f"Error loading pickled data: {str(e)}")
         st.stop()
 
-# Function for user authentication
-def authenticate(username, password):
-    # Replace with actual authentication logic
-    correct_username = 'admin'
-    correct_password = 'password'
-    return username == correct_username and password == correct_password
-
 # Main function to display UI
 def main():
     # Load data and models
@@ -115,36 +108,19 @@ def main():
     # Set page configuration
     st.set_page_config(page_title="LinkedIn Jobs Recommender", layout="wide")
 
-    # Sidebar for login
-    st.sidebar.title('Login')
-    username = st.sidebar.text_input('Username')
-    password = st.sidebar.text_input('Password', type='password')
-    login_button = st.sidebar.button('Login')
+    # Project Overview
+    st.title('LinkedIn Jobs Recommender System')
+    st.header('Project Overview')
+    st.markdown("""
+    This application uses a cosine similarity model to recommend job opportunities based on a selected job title. 
+    Users can filter jobs by industry and view relevant job listings.
+    """)
 
-    # Authenticate user
-    if login_button:
-        if authenticate(username, password):
-            st.sidebar.success(f'Logged in as {username}')
-            st.session_state.logged_in = True
-        else:
-            st.sidebar.error('Incorrect username or password')
+    # Navigation Bar
+    st.sidebar.title('Navigation')
+    page = st.sidebar.selectbox('Go to', ['Home', 'About'])
 
-    # Display main content if logged in
-    if st.session_state.get('logged_in'):
-        st.title('LinkedIn Jobs Recommender System')
-        st.write("Welcome to LinkedIn Jobs Recommender System")
-
-        # Project Overview
-        st.header('Project Overview')
-        st.markdown("""
-        This application uses a cosine similarity model to recommend job opportunities based on a selected job title. 
-        Users can filter jobs by industry and view relevant job listings.
-        """)
-
-        # Navigation Bar
-        st.sidebar.title('Navigation')
-        page = st.sidebar.radio('Go to', ['Home', 'About'])
-
+    if page == 'Home':
         # Function to get job recommendations
         def get_recommendations(title):
             try:
@@ -192,16 +168,12 @@ def main():
             else:
                 st.warning("Please select a job title.")
 
-        # About section
-        st.sidebar.subheader('About')
-        st.sidebar.info(
-            "This application provides job recommendations based on a cosine similarity model. "
-            "It helps users find relevant job opportunities based on selected filters and job titles."
-        )
-        
-        # GitHub link
-        st.sidebar.subheader('GitHub')
-        st.sidebar.markdown("[Project Repository](www.linkedin.com/in/arizkhan)")
+    elif page == 'About':
+        st.title('About')
+        st.write("""
+        This application recommends job opportunities based on a cosine similarity model. 
+        Users can filter jobs by industry to find relevant job listings.
+        """)
 
 # Execute main function
 if __name__ == '__main__':
