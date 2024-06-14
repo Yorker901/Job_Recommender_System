@@ -107,33 +107,6 @@ def authenticate(username, password):
     correct_password = 'password'
     return username == correct_username and password == correct_password
 
-# Function to filter job data based on search and industry
-def filter_jobs(df, search_title, selected_industries):
-    filtered_df = df.copy()
-    
-    # Apply search filter
-    if search_title:
-        filtered_df = filtered_df[filtered_df['Job Title Cleaned'].str.contains(search_title, case=False)]
-    
-    # Apply industry filter
-    if selected_industries:
-        filtered_df = filtered_df[filtered_df['Industry'].isin(selected_industries)]
-    
-    return filtered_df
-
-# Function to get job recommendations
-def get_recommendations(df, similarity, title):
-    try:
-        indices = pd.Series(df.index, index=df['Job Title Cleaned'])
-        idx = indices[title]
-        sim_scores = list(enumerate(similarity[idx]))
-        sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-        sim_scores = sim_scores[1:6]  # Top 5 recommendations
-        job_indices = [i[0] for i in sim_scores]
-        return df.iloc[job_indices]
-    except KeyError:
-        return None
-
 # Main function to display UI
 def main():
     # Load data and models
@@ -142,72 +115,85 @@ def main():
     # Set page configuration
     st.set_page_config(page_title="LinkedIn Jobs Recommender", layout="wide")
 
-    # Project Overview
-    st.title('LinkedIn Jobs Recommender System')
-    st.header('Project Overview')
-    st.markdown("""
-    This application uses a cosine similarity model to recommend job opportunities based on a selected job title. 
-    Users can filter jobs by industry and view relevant job listings.
-    """)
+    # Sidebar for login
+    st.sidebar.title('Login')
+    username = st.sidebar.text_input('Username')
+    password = st.sidebar.text_input('Password', type='password')
+    login_button = st.sidebar.button('Login')
 
-    # Navigation Bar
-    st.sidebar.title('Navigation')
-    page = st.sidebar.selectbox('Go to', ['Home', 'About'])
+    # Authenticate user
+    if login_button:
+        if authenticate(username, password):
+            st.sidebar.success(f'Logged in as {username}')
+            st.session_state.logged_in = True
+        else:
+            st.sidebar.error('Incorrect username or password')
 
-    if page == 'Home':
-        # Sidebar for login
-        st.sidebar.subheader('Login')
-        username = st.sidebar.text_input('Username')
-        password = st.sidebar.text_input('Password', type='password')
-        login_button = st.sidebar.button('Login')
+    # Display main content if logged in
+    if st.session_state.get('logged_in'):
+        st.title('LinkedIn Jobs Recommender System')
+        st.write("Welcome to LinkedIn Jobs Recommender System")
 
-        # Authenticate user
-        if login_button:
-            if authenticate(username, password):
-                st.sidebar.success(f'Logged in as {username}')
-                st.session_state.logged_in = True
-            else:
-                st.sidebar.error('Incorrect username or password')
+        # Function to get job recommendations
+        def get_recommendations(title):
+            try:
+                indices = pd.Series(df.index, index=df['Job Title Cleaned'])
+                idx = indices[title]
+                sim_scores = list(enumerate(similarity[idx]))
+                sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+                sim_scores = sim_scores[1:6]  # Top 5 recommendations
+                job_indices = [i[0] for i in sim_scores]
+                return df.iloc[job_indices]
+            except KeyError:
+                return None
 
-        # Display main content if logged in
-        if st.session_state.get('logged_in'):
-            # Sidebar for search and filters
-            st.sidebar.subheader('Search and Filters:')
-            search_title = st.sidebar.text_input("Search for a Job Title:")
-            options = df['Job Title Cleaned'].values
-            filtered_options = [option for option in options if search_title.lower() in option.lower()]
-            option = st.sidebar.selectbox('Select a Job Title:', options=filtered_options)
+        # Sidebar for search and filters
+        st.sidebar.subheader('Search and Filters:')
+        search_title = st.sidebar.text_input("Search for a Job Title:")
+        options = df['Job Title Cleaned'].values
+        filtered_options = [option for option in options if search_title.lower() in option.lower()]
+        option = st.sidebar.selectbox('Select a Job Title:', options=filtered_options)
 
-            # Multi-select for industries
-            industries = df['Industry'].unique()
-            selected_industries = st.sidebar.multiselect('Filter by Industries:', industries)
+        # Multi-select for industries
+        industries = df['Industry'].unique()
+        selected_industries = st.sidebar.multiselect('Filter by Industries:', industries)
 
-            # Filter job data
-            filtered_df = filter_jobs(df, search_title, selected_industries)
+        # Display selected filters
+        if selected_industries:
+            filtered_df = df[df['Industry'].isin(selected_industries)]
+        else:
+            filtered_df = df
 
-            # Button to trigger recommendation
-            if st.sidebar.button('Get Recommendations'):
-                if option:
-                    recommendation = get_recommendations(filtered_df, similarity, option)
-                    if recommendation is not None and not recommendation.empty:
-                        st.header('Recommended Jobs:')
-                        for i, row in recommendation.iterrows():
-                            st.subheader(row['Job Title Cleaned'])
-                            st.write(f"**Company:** {row['Company']}")
-                            st.write(f"**Industry:** {row['Industry']}")
-                            st.write(f"**Type of Role:** {row['Type of role cleaned']}")
-                            st.markdown("---")
-                    else:
-                        st.warning(f"No recommendations found for '{option}'. Please select another job title or adjust filters.")
+        # Button to trigger recommendation
+        if st.sidebar.button('Get Recommendations'):
+            if option:
+                recommendation = get_recommendations(option)
+                if recommendation is not None and not recommendation.empty:
+                    st.header('Recommended Jobs:')
+                    for i, row in recommendation.iterrows():
+                        st.subheader(row['Job Title Cleaned'])
+                        st.write(f"**Company:** {row['Company']}")
+                        st.write(f"**Industry:** {row['Industry']}")
+                        st.write(f"**Type of Role:** {row['Type of role cleaned']}")
+                        st.markdown("---")
                 else:
-                    st.warning("Please select a job title.")
+                    st.warning(f"No recommendations found for '{option}'. Please select another job title or adjust filters.")
+            else:
+                st.warning("Please select a job title.")
 
-    elif page == 'About':
-        st.title('About')
-        st.write("""
-        This application recommends job opportunities based on a cosine similarity model. 
-        Users can filter jobs by industry to find relevant job listings.
-        """)
+        # About section
+        st.sidebar.subheader('Navigation')
+        page = st.sidebar.radio('Go to', ['Home', 'About'])
+
+        if page == 'Home':
+            st.write("This is the main page content.")
+            # Add more content as needed
+        elif page == 'About':
+            st.title('About')
+            st.write(
+                "This application provides job recommendations based on a cosine similarity model. "
+                "It helps users find relevant job opportunities based on selected filters and job titles."
+            )
 
 # Execute main function
 if __name__ == '__main__':
