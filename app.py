@@ -48,7 +48,7 @@ def main():
     # Display main content if logged in
     if st.session_state.get('logged_in'):
         st.title('CareerAlign')
-        st.write("Welcome to CareerAlign")
+        st.write('Welcome to the LinkedIn Jobs Recommender System.')
 
         # Function to get job recommendations
         def get_recommendations(title):
@@ -105,7 +105,7 @@ def main():
         )
 
     else:
-        st.info('Please login to access the LinkedIn Jobs Recommender System.')
+        st.info('Please login to access CareerAlign')
 
     # Additional pages and sections
     if st.session_state.get('logged_in'):
